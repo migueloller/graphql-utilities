@@ -1,0 +1,48 @@
+{
+  "name": "graphql-utilities",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Utilities for GraphQL",
+  "author": "Miguel Oller <miguel@bloveit.com>",
+  "license": "MIT",
+  "respository": "https://github.com/bloveit/graphql-utilities.git",
+  "bugs": "https://github.com/bloveit/graphql-utilities/issues",
+  "keywords": [
+    "GraphQL"
+  ],
+  "main": "lib",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest",
+    "build": "babel src -d lib",
+    "prepublish": "npm run lint && npm run test && npm run build"
+  },
+  "dependencies": {
+    "graphql": "^0.7.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-eslint": "^6.1.2",
+    "babel-jest": "^15.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.14.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "coveralls": "^2.11.12",
+    "eslint": "^3.4.0",
+    "eslint-config-airbnb-base": "^5.0.3",
+    "eslint-plugin-babel": "^3.3.0",
+    "eslint-plugin-import": "^1.14.0",
+    "jest": "^15.1.1"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.js",
+      "!src/**/__tests__/**"
+    ],
+    "testEnvironment": "node",
+    "testRegex": "__tests__/.*-test.js$"
+  }
+}
