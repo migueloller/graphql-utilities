@@ -1,7 +1,6 @@
 {
   "name": "graphql-utilities",
   "version": "0.0.1",
-  "private": true,
   "description": "Utilities for GraphQL",
   "author": "Miguel Oller <miguel@bloveit.com>",
   "license": "MIT",
