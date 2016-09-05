@@ -16,7 +16,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "jest",
-    "build": "babel src -d lib",
+    "build": "babel src -d lib --ignore __tests__",
     "prepublish": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
