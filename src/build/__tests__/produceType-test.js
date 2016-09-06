@@ -11,7 +11,7 @@ import {
   GraphQLNonNull,
 } from 'graphql/type';
 import { parse } from 'graphql/language';
-import produceType, { getNamedTypeAST, buildWrappedType, resolveThunk } from '../produceType';
+import produceType, { getNamedTypeAST, buildWrappedType } from '../produceType';
 
 const [{ type: innerTypeAST }, { type: wrappedTypeAST }] = parse(`
   type Ints {
@@ -30,13 +30,6 @@ describe('getNamedTypeAST()', () => {
 describe('buildWrappedType()', () => {
   it('should work', () => {
     expect(buildWrappedType(GraphQLInt, wrappedTypeAST)).toEqual(wrappedType);
-  });
-});
-
-describe('resolveThunk()', () => {
-  it('should work', () => {
-    expect(resolveThunk(true)).toBe(true);
-    expect(resolveThunk(() => true)).toBe(true);
   });
 });
 

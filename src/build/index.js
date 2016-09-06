@@ -7,6 +7,7 @@ import buildInterface from './buildInterface';
 import buildUnion from './buildUnion';
 import buildEnum from './buildEnum';
 import buildInputObject from './buildInputObject';
+import resolveThunk from './resolveThunk';
 
 const buildMap = {
   [Kind.SCALAR_TYPE_DEFINITION]: buildScalar,
@@ -34,9 +35,9 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
   if (typeof source !== 'string') throw new Error(`Expected a string but got ${source}`);
 
   /* eslint-disable no-param-reassign */
-  if (Array.isArray(config)) {
+  if (Array.isArray(config) || typeof config === 'function') {
     infer = typeof typeDeps === 'boolean' ? typeDeps : true;
-    typeDeps = config;
+    typeDeps = resolveThunk(config);
     config = {};
   }
 
@@ -53,7 +54,9 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
   /* eslint-enable no-param-reassign */
 
   if (!(config instanceof Object)) throw new Error(`Expected an object but got ${config}`);
-  if (!Array.isArray(typeDeps)) throw new Error(`Expected an array but got ${typeDeps}`);
+  if (!(Array.isArray(typeDeps) || typeof typeDeps === 'function')) {
+    throw new Error(`Expected an array but got ${typeDeps}`);
+  }
   if (typeof infer !== 'boolean') throw new Error(`Expected a boolean but got ${infer}`);
 
   const documentAST = parse(source);

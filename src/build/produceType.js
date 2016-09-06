@@ -8,6 +8,7 @@ import {
   GraphQLNonNull,
 } from 'graphql/type';
 import { Kind } from 'graphql/language';
+import resolveThunk from './resolveThunk';
 
 const { LIST_TYPE, NON_NULL_TYPE } = Kind;
 
@@ -36,8 +37,6 @@ export const buildWrappedType = (innerType, typeAST) => {
   }
   return innerType;
 };
-
-export const resolveThunk = (thunk) => (typeof thunk === 'function' ? thunk() : thunk);
 
 export default function produceType(typeAST, types) {
   const namedTypeAST = getNamedTypeAST(typeAST);
