@@ -4,7 +4,10 @@
   "description": "Utilities for GraphQL",
   "author": "Miguel Oller <miguel@bloveit.com>",
   "license": "MIT",
-  "respository": "https://github.com/bloveit/graphql-utilities.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bloveit/graphql-utilities.git"
+  },
   "bugs": "https://github.com/bloveit/graphql-utilities/issues",
   "keywords": [
     "GraphQL"
@@ -26,8 +29,11 @@
     "babel-cli": "^6.14.0",
     "babel-eslint": "^6.1.2",
     "babel-jest": "^15.0.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.14.0",
-    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-es2017": "^6.14.0",
+    "babel-preset-latest": "^6.14.0",
+    "babel-preset-stage-0": "^6.5.0",
     "coveralls": "^2.11.12",
     "eslint": "^3.4.0",
     "eslint-config-airbnb-base": "^5.0.3",

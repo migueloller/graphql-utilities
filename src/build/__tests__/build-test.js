@@ -85,6 +85,18 @@ describe('build()', () => {
       .toThrowError('Expected an array but got null');
   });
 
+  it('should throw if inference flag is not a boolean', () => {
+    expect(() => build(querySource, undefined, undefined, null))
+      .toThrowError('Expected a boolean but got null');
+  });
+
+  it('should allow config, types, and inference flag to be optional', () => {
+    expectTypesEqual(build(querySource, {}, false), generateQuery());
+    expectTypesEqual(build(querySource, [], false), generateQuery());
+    expectSchemasEqual(build(querySource, []), Schema);
+    expectTypesEqual(build(querySource, false), generateQuery());
+  });
+
   it('should throw with duplicate types', () => {
     const msg = `Duplicate type "${Record.name}"`;
     expect(() => build(recordSource, undefined, [Record])).toThrowError(msg);
@@ -109,9 +121,16 @@ describe('build()', () => {
     expectSchemasEqual(build(querySource), Schema);
   });
 
+  it('should allow to skip schema inference', () => {
+    expectTypesEqual(build(querySource, undefined, undefined, false), generateQuery());
+  });
+
   it('should work with multiple types in source', () => {
     Object.values(build(recordSource + timestampSource, {
       Timestamp: { serialize },
     })).forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
+    Object.values(build(recordSource + timestampSource, {
+      Timestamp: { serialize },
+    }, undefined, false)).forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
   });
 });

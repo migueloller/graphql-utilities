@@ -1,7 +1,7 @@
 # graphql-utilities
 [![npm version](https://badge.fury.io/js/graphql-utilities.svg)](https://badge.fury.io/js/graphql-utilities) [![Build Status](https://travis-ci.org/bloveit/graphql-utilities.svg?branch=master)](https://travis-ci.org/bloveit/graphql-utilities) [![Coverage Status](https://coveralls.io/repos/github/bloveit/graphql-utilities/badge.svg?branch=master)](https://coveralls.io/github/bloveit/graphql-utilities?branch=master)
 
-Inspired by [`graphql`](https://github.com/graphql/graphql-js), [`graph.ql`](https://github.com/MatthewMueller/graph.ql), [`graphql-tools`](https://github.com/apollostack/graphql-tools), and [`graphql-helpers`](https://github.com/depop/graphql-helpers).
+Inspired by [`graph.ql`](https://github.com/MatthewMueller/graph.ql), [`graphql-tools`](https://github.com/apollostack/graphql-tools), and [`graphql-helpers`](https://github.com/depop/graphql-helpers).
 
 ## Why?
 There are various libraries out there providing utilities for GraphQL and even the [reference implementation](https://github.com/graphql/graphql-js) itself is adding [new utilities](https://github.com/graphql/graphql-js/pull/471). So why do we need another one?
@@ -57,8 +57,8 @@ const Schema = build(`
 
 ## TODO
 - [ ] Add detailed API docs.
-- [ ] Make `build` configuration interchangeable with types.
-- [ ] Allow `build` to accept a flag to skip inferred schema.
+- [x] ~~Make `build` configuration interchangeable with types.~~
+- [x] ~~Allow `build` to accept a flag to skip inferred schema.~~
 
 ## License
 MIT
