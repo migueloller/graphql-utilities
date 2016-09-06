@@ -22,8 +22,8 @@
     "build": "babel src -d lib --ignore __tests__",
     "prepublish": "npm run lint && npm run test && npm run build"
   },
-  "dependencies": {
-    "graphql": "^0.7.0"
+  "peerDependencies": {
+    "graphql": ">=0.7.0"
   },
   "devDependencies": {
     "babel-cli": "^6.14.0",
@@ -39,6 +39,7 @@
     "eslint-config-airbnb-base": "^5.0.3",
     "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-import": "^1.14.0",
+    "graphql": "^0.7.0",
     "jest": "^15.1.1"
   },
   "jest": {
