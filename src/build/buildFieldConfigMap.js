@@ -1,4 +1,5 @@
 import { getDescription } from 'graphql/utilities/buildASTSchema';
+import { getNamedType } from 'graphql/type';
 import produceType from './produceType';
 
 export const buildFieldConfigArgumentMap = (fieldAST, types) =>
@@ -7,7 +8,9 @@ export const buildFieldConfigArgumentMap = (fieldAST, types) =>
     const defaultValue = inputValueAST.defaultValue;
     const description = getDescription(inputValueAST);
     const argumentConfig = { type };
-    if (defaultValue !== null) argumentConfig.defaultValue = type.parseLiteral(defaultValue);
+    if (defaultValue !== null) {
+      argumentConfig.defaultValue = getNamedType(type).parseLiteral(defaultValue);
+    }
     if (description) argumentConfig.description = description;
     return { ...map, [inputValueAST.name.value]: argumentConfig };
   }, {});
