@@ -37,7 +37,7 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
   /* eslint-disable no-param-reassign */
   if (Array.isArray(config) || typeof config === 'function') {
     infer = typeof typeDeps === 'boolean' ? typeDeps : true;
-    typeDeps = resolveThunk(config);
+    typeDeps = config;
     config = {};
   }
 
@@ -51,12 +51,12 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     infer = typeDeps;
     typeDeps = [];
   }
+
+  typeDeps = resolveThunk(typeDeps);
   /* eslint-enable no-param-reassign */
 
   if (!(config instanceof Object)) throw new Error(`Expected an object but got ${config}`);
-  if (!(Array.isArray(typeDeps) || typeof typeDeps === 'function')) {
-    throw new Error(`Expected an array but got ${typeDeps}`);
-  }
+  if (!Array.isArray(typeDeps)) throw new Error(`Expected an array but got ${typeDeps}`);
   if (typeof infer !== 'boolean') throw new Error(`Expected a boolean but got ${infer}`);
 
   const documentAST = parse(source);
