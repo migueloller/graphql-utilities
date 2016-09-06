@@ -18,6 +18,15 @@ const buildMap = {
   [Kind.INPUT_OBJECT_TYPE_DEFINITION]: buildInputObject,
 };
 
+export const ensureNoDuplicateTypes = (types) => {
+  types.forEach((typeA) => {
+    if (types.some((typeB) => typeA !== typeB && typeA.name === typeB.name)) {
+      throw new Error(`Duplicate type "${typeA.name}" in schema definition or type dependencies.`);
+    }
+  });
+  return types;
+};
+
 export const buildTypes = (documentAST, configMap = {}, typeDependencies = []) => {
   const derived = documentAST.definitions.map((definition) => {
     const buildDefinition = buildMap[definition.kind];
@@ -25,14 +34,14 @@ export const buildTypes = (documentAST, configMap = {}, typeDependencies = []) =
     return buildDefinition(
       definition,
       configMap[definition.name.value],
-      () => [...derived, ...typeDependencies],
+      () => ensureNoDuplicateTypes([...derived, ...resolveThunk(typeDependencies)]),
     );
   }).filter((x) => x);
-  return [...derived, ...typeDependencies];
+  return derived;
 };
 
 export default function build(source, config = {}, typeDeps = [], infer = true) {
-  if (typeof source !== 'string') throw new Error(`Expected a string but got ${source}`);
+  if (typeof source !== 'string') throw new Error(`Expected a string but got ${source}.`);
 
   /* eslint-disable no-param-reassign */
   if (Array.isArray(config) || typeof config === 'function') {
@@ -51,54 +60,56 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     infer = typeDeps;
     typeDeps = [];
   }
-
-  typeDeps = resolveThunk(typeDeps);
   /* eslint-enable no-param-reassign */
 
-  if (!(config instanceof Object)) throw new Error(`Expected an object but got ${config}`);
-  if (!Array.isArray(typeDeps)) throw new Error(`Expected an array but got ${typeDeps}`);
-  if (typeof infer !== 'boolean') throw new Error(`Expected a boolean but got ${infer}`);
+  if (!(config instanceof Object)) throw new Error(`Expected an object but got ${config}.`);
+  if (!(Array.isArray(typeDeps) || typeof typeDeps === 'function')) {
+    throw new Error(`Expected an array or a function but got ${typeDeps}.`);
+  }
+  if (typeof infer !== 'boolean') throw new Error(`Expected a boolean but got ${infer}.`);
 
   const documentAST = parse(source);
   const { definitions } = documentAST;
-
-  // if there is only one type definition and it's not named Query when inference is on, build the
-  // type and return it
-  if (
+  const firstDefinition = definitions[0];
+  const shouldReturnOneType = (
     definitions.length === 1 &&
-    !(definitions[0].name.value === 'Query' && infer) &&
-    ~Object.keys(buildMap).indexOf(definitions[0].kind)
-  ) {
-    const type = buildMap[definitions[0].kind](definitions[0], config, typeDeps);
-    if (typeDeps.some(({ name }) => name === type.name)) {
-      throw new Error(`Duplicate type "${type.name}"`);
-    }
-    return type;
-  }
+    ~Object.keys(buildMap).indexOf(firstDefinition.kind) &&
+    !(firstDefinition.name.value === 'Query' && infer)
+  );
+  const types = ensureNoDuplicateTypes(buildTypes(
+    documentAST,
+    shouldReturnOneType ? { [firstDefinition.name.value]: config } : config,
+    typeDeps,
+  ));
 
-  const types = buildTypes(documentAST, config, typeDeps);
-  // check for duplicate types
-  types.forEach((typeA) => {
-    if (types.some((typeB) => typeA !== typeB && typeA.name === typeB.name)) {
-      throw new Error(`Duplicate type "${typeA.name}"`);
-    }
-  });
+  if (shouldReturnOneType) return types[0];
 
   // try to build the defined schema
   const schemaASTs = definitions.filter(({ kind }) => kind === Kind.SCHEMA_DEFINITION);
   if (schemaASTs.length > 1) throw new Error('Must provide only one schema definition.');
-  if (schemaASTs.length === 1) return buildSchema(schemaASTs[0], config, types);
+  if (schemaASTs.length === 1) {
+    if (!Array.isArray(typeDeps)) {
+      throw new Error('Can\'t use thunks as type dependencies for schema.');
+    }
+    return buildSchema(
+      schemaASTs[0],
+      undefined,
+      () => ensureNoDuplicateTypes([...types, ...typeDeps]),
+    );
+  }
 
   // try to build an inferred schema
   if (infer) {
     const QueryType = types.find(({ name }) => name === 'Query');
     if (QueryType) {
+      if (!Array.isArray(typeDeps)) {
+        throw new Error('Can\'t use thunks as type dependencies for schema.');
+      }
+      const allTypes = ensureNoDuplicateTypes([...types, ...typeDeps]);
       return new GraphQLSchema({
         query: QueryType,
-        mutation: types.find(({ name }) => name === 'Mutation'),
-        subscription: types.find(({ name }) => name === 'Subscription'),
-        types: config.types,
-        directives: config.directives,
+        mutation: allTypes.find(({ name }) => name === 'Mutation'),
+        subscription: allTypes.find(({ name }) => name === 'Subscription'),
       });
     }
   }

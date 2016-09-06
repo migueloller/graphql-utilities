@@ -69,25 +69,37 @@ describe('buildTypes()', () => {
     buildTypes(parse(recordSource), undefined, [Timestamp])
       .forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
   });
+
+  it('should throw with duplicate types in type dependencies', () => {
+    const msg = `Duplicate type "${Record.name}" in schema definition or type dependencies.`;
+    expect(() => {
+      const types = buildTypes(parse(recordSource), undefined, [Record]);
+      types[0].getFields();
+    }).toThrowError(msg);
+    expect(() => {
+      const types = buildTypes(parse(querySource + recordSource), undefined, [Record]);
+      types[1].getFields();
+    }).toThrowError(msg);
+  });
 });
 
 describe('build()', () => {
   it('should throw if source is not a string', () => {
-    expect(() => build()).toThrowError('Expected a string but got undefined');
+    expect(() => build()).toThrowError('Expected a string but got undefined.');
   });
 
   it('should throw if config is not an object', () => {
-    expect(() => build(querySource, null)).toThrowError('Expected an object but got null');
+    expect(() => build(querySource, null)).toThrowError('Expected an object but got null.');
   });
 
-  it('should throw if types is not an array', () => {
+  it('should throw if types is not an array or a function', () => {
     expect(() => build(querySource, undefined, null))
-      .toThrowError('Expected an array but got null');
+      .toThrowError('Expected an array or a function but got null.');
   });
 
   it('should throw if inference flag is not a boolean', () => {
     expect(() => build(querySource, undefined, undefined, null))
-      .toThrowError('Expected a boolean but got null');
+      .toThrowError('Expected a boolean but got null.');
   });
 
   it('should allow config, types, and inference flag to be optional', () => {
@@ -97,11 +109,9 @@ describe('build()', () => {
     expectTypesEqual(build(querySource, false), generateQuery());
   });
 
-  it('should throw with duplicate types', () => {
-    const msg = `Duplicate type "${Record.name}"`;
-    expect(() => build(recordSource, undefined, [Record])).toThrowError(msg);
-    expect(() => build(recordSource + recordSource)).toThrowError(msg);
-    expect(() => build(querySource + recordSource, undefined, [Record])).toThrowError(msg);
+  it('should throw with duplicate types in AST', () => {
+    expect(() => build(recordSource + recordSource))
+      .toThrowError(`Duplicate type "${Record.name}" in schema definition or type dependencies.`);
   });
 
   it('should throw with duplicate schema declarations', () => {
@@ -111,6 +121,12 @@ describe('build()', () => {
 
   it('should work with one type in source', () => {
     expectTypesEqual(build(recordSource, undefined, [Timestamp]), Record);
+  });
+
+  it('should throw if building a schema and types is not an array', () => {
+    const msg = 'Can\'t use thunks as type dependencies for schema.';
+    expect(() => build(schemaSource + querySource, undefined, () => {})).toThrowError(msg);
+    expect(() => build(querySource, undefined, () => {})).toThrowError(msg);
   });
 
   it('should work with schema in source', () => {
