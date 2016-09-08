@@ -1,4 +1,4 @@
-import { GraphQLInputObjectType } from 'graphql/type';
+import { GraphQLInputObjectType, getNamedType } from 'graphql/type';
 import { getDescription } from 'graphql/utilities/buildASTSchema';
 import produceType from './produceType';
 
@@ -10,7 +10,7 @@ export const buildInputObjectConfigFieldMap = (inputObjectAST, types) =>
     const description = getDescription(inputValueAST);
     const inputObjectFieldConfig = { type };
     if (defaultValue !== null) {
-      inputObjectFieldConfig.defaultValue = type.parseLiteral(defaultValue);
+      inputObjectFieldConfig.defaultValue = getNamedType(type).parseLiteral(defaultValue);
     }
     if (description) inputObjectFieldConfig.description = description;
     return { ...map, [name]: inputObjectFieldConfig };
