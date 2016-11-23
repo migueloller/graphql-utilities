@@ -18,7 +18,7 @@ import build, { buildTypes } from '../';
 const customDirective = new GraphQLDirective({
   name: 'Dir1',
   description:
-    'My custom uppercase',
+  'My custom uppercase',
   locations: [
     DirectiveLocation.FIELD
   ]
@@ -141,8 +141,8 @@ describe('build()', () => {
 
   it('should throw if building a schema and types is not an array', () => {
     const msg = 'Can\'t use thunks as type dependencies for schema.';
-    expect(() => build(schemaSource + querySource, undefined, () => {})).toThrowError(msg);
-    expect(() => build(querySource, undefined, () => {})).toThrowError(msg);
+    expect(() => build(schemaSource + querySource, undefined, () => { })).toThrowError(msg);
+    expect(() => build(querySource, undefined, () => { })).toThrowError(msg);
   });
 
   it('should work with schema in source', () => {
@@ -167,10 +167,10 @@ describe('build()', () => {
   });
 
   it('should allow directives configuration using __schema', () => {
-    expectSchemasEqual(build(schemaSource  + querySourceWithDirective, {__schema: {directives: [customDirective]}}, undefined, false), SchemaWithDirective);
+    expectSchemasEqual(build(schemaSource + querySourceWithDirective, { __schema: { directives: [customDirective] } }, undefined, false), SchemaWithDirective);
   });
 
   it('should not build schema with default directives', () => {
-    expect(() => expectSchemasEqual(build(schemaSource  + querySourceWithDirective, {__schema: {directives: [customDirective]}}, undefined, false), Schema)).toThrowError();
+    expect(() => expectSchemasEqual(build(schemaSource + querySourceWithDirective, { __schema: { directives: [customDirective] } }, undefined, false), Schema)).toThrowError();
   });
 });
