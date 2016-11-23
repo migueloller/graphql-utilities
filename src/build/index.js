@@ -91,9 +91,16 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     if (!Array.isArray(typeDeps)) {
       throw new Error('Can\'t use thunks as type dependencies for schema.');
     }
+
+    const schemaConfigKey =  '__schema';
+    let hasSchemaConfig = ~Object.keys(config).indexOf(schemaConfigKey);
+    let schemaConfig = hasSchemaConfig ? config[schemaConfigKey] : undefined;
+    if(schemaConfig)
+      schemaConfig.types = ensureNoDuplicateTypes([...(schemaConfig.types || []), ...types, ...typeDeps]);
+
     return buildSchema(
       schemaASTs[0],
-      undefined,
+      schemaConfig,
       () => ensureNoDuplicateTypes([...types, ...typeDeps]),
     );
   }
