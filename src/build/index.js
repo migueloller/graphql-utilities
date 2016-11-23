@@ -93,11 +93,12 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     }
 
     const schemaConfigKey = '__schema';
-    let hasSchemaConfig = ~Object.keys(config).indexOf(schemaConfigKey);
-    let schemaConfig = hasSchemaConfig ? config[schemaConfigKey] : undefined;
-    if (schemaConfig)
-      schemaConfig.types = ensureNoDuplicateTypes([...(schemaConfig.types || []), ...types, ...typeDeps]);
-
+    const hasSchemaConfig = ~Object.keys(config).indexOf(schemaConfigKey);
+    const schemaConfig = hasSchemaConfig ? config[schemaConfigKey] : undefined;
+    if (schemaConfig) {
+      const schemaTypes = [...(schemaConfig.types || []), ...types, ...typeDeps];
+      schemaConfig.types = ensureNoDuplicateTypes(schemaTypes);
+    }
     return buildSchema(
       schemaASTs[0],
       schemaConfig,

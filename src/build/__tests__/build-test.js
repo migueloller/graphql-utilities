@@ -20,8 +20,8 @@ const customDirective = new GraphQLDirective({
   description:
   'My custom uppercase',
   locations: [
-    DirectiveLocation.FIELD
-  ]
+    DirectiveLocation.FIELD,
+  ],
 });
 const querySource = `
  type Query {
@@ -43,7 +43,10 @@ const schemaSource = `
   }
 `;
 const Schema = new GraphQLSchema({ query: generateQuery() });
-const SchemaWithDirective = new GraphQLSchema({ directives: [customDirective], query: generateQuery() });
+const SchemaWithDirective = new GraphQLSchema({
+  directives: [customDirective],
+  query: generateQuery(),
+});
 const timestampSource = `
   scalar Timestamp
 `;
@@ -167,10 +170,14 @@ describe('build()', () => {
   });
 
   it('should allow directives configuration using __schema', () => {
-    expectSchemasEqual(build(schemaSource + querySourceWithDirective, { __schema: { directives: [customDirective] } }, undefined, false), SchemaWithDirective);
+    const config = { __schema: { directives: [customDirective] } };
+    const target = build(schemaSource + querySourceWithDirective, config, undefined, false);
+    expectSchemasEqual(target, SchemaWithDirective);
   });
 
   it('should not build schema with default directives', () => {
-    expect(() => expectSchemasEqual(build(schemaSource + querySourceWithDirective, { __schema: { directives: [customDirective] } }, undefined, false), Schema)).toThrowError();
+    const config = { __schema: { directives: [customDirective] } };
+    const target = build(schemaSource + querySourceWithDirective, config, undefined, false);
+    expect(() => expectSchemasEqual(target, Schema)).toThrowError();
   });
 });
