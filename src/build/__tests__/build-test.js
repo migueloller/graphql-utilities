@@ -8,30 +8,27 @@ import {
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLID,
+  DirectiveLocation,
+  GraphQLDirective,
 } from 'graphql/type';
-import { DirectiveLocation, GraphQLDirective } from 'graphql/type/directives';
 
 import { parse } from 'graphql/language';
 import { expectTypesEqual, expectSchemasEqual } from './comparators';
 import build, { buildTypes } from '../';
 
-const customDirective = new GraphQLDirective({
-  name: 'Dir1',
-  description:
-  'My custom uppercase',
-  locations: [
-    DirectiveLocation.FIELD,
-  ],
+const CustomDirective = new GraphQLDirective({
+  name: 'CustomDirective',
+  locations: [DirectiveLocation.FIELD],
 });
 const querySource = `
- type Query {
-   ok: Boolean!
- }
+  type Query {
+    ok: Boolean!
+  }
 `;
-const querySourceWithDirective = `
- type Query {
-   ok: Boolean! @Dir1
- }
+const queryWithDirectiveSource = `
+  type Query {
+    ok: Boolean! @CustomDirective
+  }
 `;
 const generateQuery = (resolve) => new GraphQLObjectType({
   name: 'Query',
@@ -44,7 +41,7 @@ const schemaSource = `
 `;
 const Schema = new GraphQLSchema({ query: generateQuery() });
 const SchemaWithDirective = new GraphQLSchema({
-  directives: [customDirective],
+  directives: [CustomDirective],
   query: generateQuery(),
 });
 const timestampSource = `
@@ -144,8 +141,8 @@ describe('build()', () => {
 
   it('should throw if building a schema and types is not an array', () => {
     const msg = 'Can\'t use thunks as type dependencies for schema.';
-    expect(() => build(schemaSource + querySource, undefined, () => { })).toThrowError(msg);
-    expect(() => build(querySource, undefined, () => { })).toThrowError(msg);
+    expect(() => build(schemaSource + querySource, undefined, () => {})).toThrowError(msg);
+    expect(() => build(querySource, undefined, () => {})).toThrowError(msg);
   });
 
   it('should work with schema in source', () => {
@@ -170,14 +167,14 @@ describe('build()', () => {
   });
 
   it('should allow directives configuration using __schema', () => {
-    const config = { __schema: { directives: [customDirective] } };
-    const target = build(schemaSource + querySourceWithDirective, config, undefined, false);
+    const config = { __schema: { directives: [CustomDirective] } };
+    const target = build(schemaSource + queryWithDirectiveSource, config);
     expectSchemasEqual(target, SchemaWithDirective);
   });
 
   it('should not build schema with default directives', () => {
-    const config = { __schema: { directives: [customDirective] } };
-    const target = build(schemaSource + querySourceWithDirective, config, undefined, false);
+    const config = { __schema: { directives: [CustomDirective] } };
+    const target = build(schemaSource + queryWithDirectiveSource, config);
     expect(() => expectSchemasEqual(target, Schema)).toThrowError();
   });
 });

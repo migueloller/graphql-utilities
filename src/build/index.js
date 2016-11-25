@@ -18,6 +18,8 @@ const buildMap = {
   [Kind.INPUT_OBJECT_TYPE_DEFINITION]: buildInputObject,
 };
 
+const SCHEMA_CONFIG_KEY = '__schema';
+
 export const ensureNoDuplicateTypes = (types) => {
   types.forEach((typeA) => {
     if (types.some((typeB) => typeA !== typeB && typeA.name === typeB.name)) {
@@ -92,16 +94,9 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
       throw new Error('Can\'t use thunks as type dependencies for schema.');
     }
 
-    const schemaConfigKey = '__schema';
-    const hasSchemaConfig = ~Object.keys(config).indexOf(schemaConfigKey);
-    const schemaConfig = hasSchemaConfig ? config[schemaConfigKey] : undefined;
-    if (schemaConfig) {
-      const schemaTypes = [...(schemaConfig.types || []), ...types, ...typeDeps];
-      schemaConfig.types = ensureNoDuplicateTypes(schemaTypes);
-    }
     return buildSchema(
       schemaASTs[0],
-      schemaConfig,
+      config[SCHEMA_CONFIG_KEY],
       () => ensureNoDuplicateTypes([...types, ...typeDeps]),
     );
   }
@@ -123,5 +118,5 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
   }
 
   // return a type map
-  return types.reduce((map, type) => ({ ...map, [type.name]: type }), { });
+  return types.reduce((map, type) => ({ ...map, [type.name]: type }), {});
 }
