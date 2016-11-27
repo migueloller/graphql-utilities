@@ -11,10 +11,9 @@ import {
   DirectiveLocation,
   GraphQLDirective,
 } from 'graphql/type';
-
 import { parse } from 'graphql/language';
 import { expectTypesEqual, expectSchemasEqual } from './comparators';
-import build, { buildTypes } from '../';
+import build, { buildTypes, SCHEMA_CONFIG_KEY } from '../';
 
 const CustomDirective = new GraphQLDirective({
   name: 'CustomDirective',
@@ -166,15 +165,10 @@ describe('build()', () => {
     }, undefined, false)).forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
   });
 
-  it('should allow directives configuration using __schema', () => {
-    const config = { __schema: { directives: [CustomDirective] } };
+  it('should allow directives configuration using SCHEMA_CONFIG_KEY', () => {
+    const config = {};
+    config[SCHEMA_CONFIG_KEY] = { directives: [CustomDirective] };
     const target = build(schemaSource + queryWithDirectiveSource, config);
     expectSchemasEqual(target, SchemaWithDirective);
-  });
-
-  it('should not build schema with default directives', () => {
-    const config = { __schema: { directives: [CustomDirective] } };
-    const target = build(schemaSource + queryWithDirectiveSource, config);
-    expect(() => expectSchemasEqual(target, Schema)).toThrowError();
   });
 });

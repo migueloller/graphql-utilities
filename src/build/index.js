@@ -18,7 +18,7 @@ const buildMap = {
   [Kind.INPUT_OBJECT_TYPE_DEFINITION]: buildInputObject,
 };
 
-const SCHEMA_CONFIG_KEY = '__schema';
+export const SCHEMA_CONFIG_KEY = '__schema';
 
 export const ensureNoDuplicateTypes = (types) => {
   types.forEach((typeA) => {
@@ -93,7 +93,6 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     if (!Array.isArray(typeDeps)) {
       throw new Error('Can\'t use thunks as type dependencies for schema.');
     }
-
     return buildSchema(
       schemaASTs[0],
       config[SCHEMA_CONFIG_KEY],
