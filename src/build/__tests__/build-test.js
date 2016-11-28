@@ -165,7 +165,7 @@ describe('build()', () => {
     }, undefined, false)).forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
   });
 
-  it('should allow directives configuration using SCHEMA_CONFIG_KEY', () => {
+  it('should allow schema configuration using SCHEMA_CONFIG_KEY', () => {
     const config = {};
     config[SCHEMA_CONFIG_KEY] = { directives: [CustomDirective] };
     const target = build(schemaSource + queryWithDirectiveSource, config);
