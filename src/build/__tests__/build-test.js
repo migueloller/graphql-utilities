@@ -8,15 +8,26 @@ import {
   GraphQLNonNull,
   GraphQLBoolean,
   GraphQLID,
+  DirectiveLocation,
+  GraphQLDirective,
 } from 'graphql/type';
 import { parse } from 'graphql/language';
 import { expectTypesEqual, expectSchemasEqual } from './comparators';
-import build, { buildTypes } from '../';
+import build, { buildTypes, SCHEMA_CONFIG_KEY } from '../';
 
+const CustomDirective = new GraphQLDirective({
+  name: 'CustomDirective',
+  locations: [DirectiveLocation.FIELD],
+});
 const querySource = `
- type Query {
-   ok: Boolean!
- }
+  type Query {
+    ok: Boolean!
+  }
+`;
+const queryWithDirectiveSource = `
+  type Query {
+    ok: Boolean! @CustomDirective
+  }
 `;
 const generateQuery = (resolve) => new GraphQLObjectType({
   name: 'Query',
@@ -28,6 +39,10 @@ const schemaSource = `
   }
 `;
 const Schema = new GraphQLSchema({ query: generateQuery() });
+const SchemaWithDirective = new GraphQLSchema({
+  directives: [CustomDirective],
+  query: generateQuery(),
+});
 const timestampSource = `
   scalar Timestamp
 `;
@@ -148,5 +163,12 @@ describe('build()', () => {
     Object.values(build(recordSource + timestampSource, {
       Timestamp: { serialize },
     }, undefined, false)).forEach((type, i) => expectTypesEqual(type, [Record, Timestamp][i]));
+  });
+
+  it('should allow schema configuration using SCHEMA_CONFIG_KEY', () => {
+    const config = {};
+    config[SCHEMA_CONFIG_KEY] = { directives: [CustomDirective] };
+    const target = build(schemaSource + queryWithDirectiveSource, config);
+    expectSchemasEqual(target, SchemaWithDirective);
   });
 });

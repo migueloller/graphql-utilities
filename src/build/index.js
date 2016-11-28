@@ -18,6 +18,8 @@ const buildMap = {
   [Kind.INPUT_OBJECT_TYPE_DEFINITION]: buildInputObject,
 };
 
+export const SCHEMA_CONFIG_KEY = '__schema';
+
 export const ensureNoDuplicateTypes = (types) => {
   types.forEach((typeA) => {
     if (types.some((typeB) => typeA !== typeB && typeA.name === typeB.name)) {
@@ -93,7 +95,7 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
     }
     return buildSchema(
       schemaASTs[0],
-      undefined,
+      config[SCHEMA_CONFIG_KEY],
       () => ensureNoDuplicateTypes([...types, ...typeDeps]),
     );
   }
