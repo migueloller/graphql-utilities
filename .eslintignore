@@ -1,3 +1,4 @@
 !.eslintrc.js
 lib
 coverage
+flow-typed

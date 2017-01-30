@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLInt } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildFieldConfigMap, { buildFieldConfigArgumentMap } from '../buildFieldConfigMap';
@@ -9,7 +7,7 @@ const generateTypeAST = ({
   fields = { field: 'Int' },
 } = {}) => parse(`
   type ${name} {
-    ${Object.entries(fields).map((entry) => entry.join(': ')).join('\n')}
+    ${Object.entries(fields).map(entry => entry.join(': ')).join('\n')}
   }
 `).definitions[0];
 
@@ -21,7 +19,7 @@ describe('buildFieldConfigArgumentMap()', () => {
     fields: {
       [`
         ${name}(
-          ${Object.entries(args).map((entry) => entry.join(': ')).join('\n')}
+          ${Object.entries(args).map(entry => entry.join(': ')).join('\n')}
         )
       `]: 'Int',
     },

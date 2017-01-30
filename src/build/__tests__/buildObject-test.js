@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLObjectType, GraphQLInterfaceType, GraphQLInt } from 'graphql/type';
 import { parse } from 'graphql/language';
 import { expectTypesEqual } from './comparators';
@@ -14,7 +12,7 @@ describe('buildObject()', () => {
   } = {}) => parse(`
     # ${description === undefined ? '' : description}
     type ${name} ${interfaces.length ? `implements ${interfaces.join(', ')}` : ''} {
-      ${Object.entries(fields).map((entry) => entry.join(': ')).join('\n')}
+      ${Object.entries(fields).map(entry => entry.join(': ')).join('\n')}
     }
   `).definitions[0];
   const generateObjectType = ({

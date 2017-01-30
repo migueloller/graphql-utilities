@@ -9,7 +9,7 @@ export default function buildObject(objectAST, config = {}, types) {
   const interfaces = objectAST.interfaces;
   const description = getDescription(objectAST);
   if (interfaces.length) {
-    objectTypeConfig.interfaces = () => interfaces.map((typeAST) => produceType(typeAST, types));
+    objectTypeConfig.interfaces = () => interfaces.map(typeAST => produceType(typeAST, types));
   }
   if (!('fields' in config) && !('isTypeOf' in config)) {
     // `resolve` shortcut

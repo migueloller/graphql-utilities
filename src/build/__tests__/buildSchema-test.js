@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLSchema, GraphQLObjectType, GraphQLInt } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildSchema, { buildOperation } from '../buildSchema';
@@ -11,7 +9,7 @@ const generateSchemaAST = ({ query = 'Query', mutation, subscription } = {}) => 
     ${subscription === undefined ? '' : `subscription: ${subscription}`}
   }
 `).definitions[0];
-const generateObjectType = (name) => new GraphQLObjectType({
+const generateObjectType = name => new GraphQLObjectType({
   name,
   fields: { field: { type: GraphQLInt } },
 });

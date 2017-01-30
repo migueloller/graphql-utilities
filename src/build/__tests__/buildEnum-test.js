@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLEnumType } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildEnum, { buildEnumValueConfigMap } from '../buildEnum';

@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLScalarType } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildScalar from '../buildScalar';

@@ -1,10 +1,10 @@
 module.exports = {
-  extends: 'airbnb-base',
+  extends: [
+    'airbnb-base',
+    'plugin:flowtype/recommended',
+  ],
   parser: 'babel-eslint',
   plugins: [
-    'babel',
+    'flowtype',
   ],
-  rules: {
-    'babel/func-params-comma-dangle': ['error', 'always-multiline'],
-  },
 };

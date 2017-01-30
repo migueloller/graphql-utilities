@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 export const expectTypesEqual = (a = {}, b = {}) => {
   expect(a.name).toBe(b.name);
   expect(a.description).toBe(b.description);
