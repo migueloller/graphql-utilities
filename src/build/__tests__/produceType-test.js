@@ -1,4 +1,6 @@
+/* @flow */
 
+import { parse } from 'graphql/language';
 import {
   GraphQLScalarType,
   GraphQLInt,
@@ -8,60 +10,88 @@ import {
   GraphQLID,
   GraphQLList,
   GraphQLNonNull,
+  __Schema,
+  __Directive,
+  __DirectiveLocation,
+  __Type,
+  __Field,
+  __InputValue,
+  __EnumValue,
+  __TypeKind,
 } from 'graphql/type';
-import { parse } from 'graphql/language';
-import produceType, { getNamedTypeAST, buildWrappedType } from '../produceType';
+import produceType, { getNamedTypeNode, buildWrappedType } from '../produceType';
 
-const [{ type: innerTypeAST }, { type: wrappedTypeAST }] = parse(`
+const [{ type: wrappedTypeNode }, { type: wrapperTypeNode }] = (parse(`
   type Ints {
     int: Int
     nonNullListOfNonNullInt: [Int!]!
   }
-`, { noLocation: true }).definitions[0].fields;
+`, { noLocation: true }).definitions[0]: Object).fields;
 const wrappedType = new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLInt)));
 
-describe('getNamedTypeAST()', () => {
-  it('should work', () => {
-    expect(getNamedTypeAST(wrappedTypeAST)).toEqual(innerTypeAST);
+describe('getNamedTypeNode()', () => {
+  test('gets wrapped type nodes', () => {
+    expect(getNamedTypeNode(wrapperTypeNode)).toEqual(wrappedTypeNode);
   });
 });
 
 describe('buildWrappedType()', () => {
-  it('should work', () => {
-    expect(buildWrappedType(GraphQLInt, wrappedTypeAST)).toEqual(wrappedType);
+  test('wraps types', () => {
+    expect(buildWrappedType(GraphQLInt, wrapperTypeNode)).toEqual(wrappedType);
   });
 });
 
 describe('produceType()', () => {
-  const customTypeAST = parse(`
+  const customTypeNode: Object = parse(`
     scalar UUID
   `).definitions[0];
   const UUID = new GraphQLScalarType({ name: 'UUID', serialize: String });
 
-  it('should produce GraphQL scalars', () => {
-    const typeAST = parse(`
-      type Scalars {
+  test('produces GraphQL inner types', () => {
+    const typeNode: Object = parse(`
+      type InnerTypes {
         int: Int
         float: Float
         string: String
         boolean: Boolean
         id: ID
+        schema: __Schema,
+        directive: __Directive,
+        directiveLocation: __DirectiveLocation,
+        type: __Type,
+        field: __Field,
+        inputValue: __InputValue,
+        enumValue: __EnumValue,
+        typeKind: __TypeKind,
       }
     `).definitions[0];
-    expect(typeAST.fields.map(({ type }) => type).map(produceType))
-      .toEqual([GraphQLInt, GraphQLFloat, GraphQLString, GraphQLBoolean, GraphQLID]);
+    expect(typeNode.fields.map(({ type }) => type).map(produceType)).toEqual([
+      GraphQLInt,
+      GraphQLFloat,
+      GraphQLString,
+      GraphQLBoolean,
+      GraphQLID,
+      __Schema,
+      __Directive,
+      __DirectiveLocation,
+      __Type,
+      __Field,
+      __InputValue,
+      __EnumValue,
+      __TypeKind,
+    ]);
   });
 
-  it('should produce GraphQL type wrappers', () => {
-    expect(produceType(wrappedTypeAST, [])).toEqual(wrappedType);
+  test('produces GraphQL type wrappers', () => {
+    expect(produceType(wrapperTypeNode, [])).toEqual(wrappedType);
   });
 
-  it('should produce custom types', () => {
-    expect(produceType(customTypeAST, [UUID])).toEqual(UUID);
+  test('produces custom types', () => {
+    expect(produceType(customTypeNode, [UUID])).toEqual(UUID);
   });
 
-  it('should throw if it can\'t produce the type', () => {
-    expect(() => produceType(customTypeAST, []))
+  test('throws if it can\'t produce the type', () => {
+    expect(() => produceType(customTypeNode, []))
       .toThrowError('Type "UUID" not found.');
   });
 });
