@@ -1,9 +1,14 @@
-import { GraphQLScalarType } from 'graphql/type';
+/* @flow */
+
+import { type GraphQLScalarTypeConfig, GraphQLScalarType } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildScalar from '../buildScalar';
 
 describe('buildScalar()', () => {
-  const generateScalarAST = ({ description, name = 'Scalar' } = {}) => parse(`
+  const generateScalarNode = ({
+    description,
+    name = 'Scalar',
+  }: { description: string, name?: string } = {}): Object => parse(`
     # ${description === undefined ? '' : description}
     scalar ${name}
   `).definitions[0];
@@ -13,30 +18,36 @@ describe('buildScalar()', () => {
     serialize,
     parseValue,
     parseLiteral,
-  } = {}) => new GraphQLScalarType({ name, description, serialize, parseValue, parseLiteral });
-
-  it('should throw with without `serialize` in config', () => {
-    expect(() => buildScalar(generateScalarAST())).toThrow();
+  }: $Shape<GraphQLScalarTypeConfig<*, *>> = {}) => new GraphQLScalarType({
+    name,
+    description,
+    serialize,
+    parseValue,
+    parseLiteral,
   });
 
-  it('should work with `serialize` in config', () => {
+  test('throws with without `serialize` in config', () => {
+    expect(() => buildScalar(generateScalarNode(), ({}: Object))).toThrow();
+  });
+
+  test('builds with `serialize` in config', () => {
     const config = { serialize() {} };
-    expect(buildScalar(generateScalarAST(), config)).toEqual(generateScalarType(config));
+    expect(buildScalar(generateScalarNode(), config)).toEqual(generateScalarType(config));
   });
 
-  it('should work with `serialize` in config and description in AST', () => {
+  test('builds with `serialize` in config and description in AST', () => {
     const config = { description: 'A description', serialize() {} };
-    expect(buildScalar(generateScalarAST(config), config)).toEqual(generateScalarType(config));
+    expect(buildScalar(generateScalarNode(config), config)).toEqual(generateScalarType(config));
   });
 
-  it('should work with `serialize`, `parseValue`, and `parseLiteral` in config', () => {
+  test('builds with `serialize`, `parseValue`, and `parseLiteral` in config', () => {
     const config = { serialize() {}, parseValue() {}, parseLiteral() {} };
-    expect(buildScalar(generateScalarAST(), config)).toEqual(generateScalarType(config));
+    expect(buildScalar(generateScalarNode(), config)).toEqual(generateScalarType(config));
   });
 
-  it('should work with GraphQL scalar type', () => {
+  test('builds with GraphQLScalarType', () => {
     const config = { serialize() {} };
-    expect(buildScalar(generateScalarAST(), generateScalarType(config)))
+    expect(buildScalar(generateScalarNode(), generateScalarType(config)))
       .toEqual(generateScalarType(config));
   });
 });
