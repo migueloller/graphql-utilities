@@ -22,7 +22,7 @@ export const SCHEMA_CONFIG_KEY = '__schema';
 
 export const ensureNoDuplicateTypes = (types) => {
   types.forEach((typeA) => {
-    if (types.some((typeB) => typeA !== typeB && typeA.name === typeB.name)) {
+    if (types.some(typeB => typeA !== typeB && typeA.name === typeB.name)) {
       throw new Error(`Duplicate type "${typeA.name}" in schema definition or type dependencies.`);
     }
   });
@@ -38,7 +38,7 @@ export const buildTypes = (documentAST, configMap = {}, typeDependencies = []) =
       configMap[definition.name.value],
       () => ensureNoDuplicateTypes([...derived, ...resolveThunk(typeDependencies)]),
     );
-  }).filter((x) => x);
+  }).filter(x => x);
   return derived;
 };
 
@@ -75,7 +75,7 @@ export default function build(source, config = {}, typeDeps = [], infer = true) 
   const firstDefinition = definitions[0];
   const shouldReturnOneType = (
     definitions.length === 1 &&
-    ~Object.keys(buildMap).indexOf(firstDefinition.kind) &&
+    ~Object.keys(buildMap).indexOf(firstDefinition.kind) && // eslint-disable-line no-bitwise
     !(firstDefinition.name.value === 'Query' && infer)
   );
   const types = ensureNoDuplicateTypes(buildTypes(

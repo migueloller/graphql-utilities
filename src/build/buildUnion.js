@@ -5,7 +5,7 @@ import produceType from './produceType';
 export default function buildUnion(unionAST, { resolveType } = {}, types) {
   const unionTypeConfig = {
     name: unionAST.name.value,
-    types: unionAST.types.map((typeAST) => produceType(typeAST, types)),
+    types: unionAST.types.map(typeAST => produceType(typeAST, types)),
     resolveType,
   };
   const description = getDescription(unionAST);

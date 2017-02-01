@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import resolveShortcut from '../resolveShortcut';
 
 describe('resolveShortcut()', () => {

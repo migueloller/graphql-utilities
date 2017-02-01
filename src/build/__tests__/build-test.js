@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import {
   GraphQLSchema,
   GraphQLScalarType,
@@ -29,7 +27,7 @@ const queryWithDirectiveSource = `
     ok: Boolean! @CustomDirective
   }
 `;
-const generateQuery = (resolve) => new GraphQLObjectType({
+const generateQuery = resolve => new GraphQLObjectType({
   name: 'Query',
   fields: { ok: { type: new GraphQLNonNull(GraphQLBoolean), resolve } },
 });
@@ -46,7 +44,7 @@ const SchemaWithDirective = new GraphQLSchema({
 const timestampSource = `
   scalar Timestamp
 `;
-const serialize = (date) => Date.prototype.toISOString.call(date);
+const serialize = date => Date.prototype.toISOString.call(date);
 const Timestamp = new GraphQLScalarType({ name: 'Timestamp', serialize });
 const recordSource = `
   interface Record {

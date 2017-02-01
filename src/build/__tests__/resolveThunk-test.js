@@ -1,9 +1,9 @@
-/* eslint-env jest */
+/* @flow */
 
 import resolveThunk from '../resolveThunk';
 
 describe('resolveThunk()', () => {
-  it('should work', () => {
+  test('works', () => {
     expect(resolveThunk(true)).toBe(true);
     expect(resolveThunk(() => true)).toBe(true);
   });

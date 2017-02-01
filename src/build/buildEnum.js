@@ -1,25 +1,40 @@
+/* @flow */
+
+import type { EnumTypeDefinitionNode } from 'graphql/language';
 import { GraphQLEnumType } from 'graphql/type';
-import { getDescription } from 'graphql/utilities/buildASTSchema';
+import getDeprecationReason from './getDeprecationReason';
+import getDescription from './getDescription';
 
-export const buildEnumValueConfigMap = (enumAST, configMap = {}) =>
-  enumAST.values.reduce((map, enumValueAST) => {
-    const name = enumValueAST.name.value;
-    const config = configMap[name] || {};
-    // set enum value to it's name by default
-    const value = 'value' in config ? config.value : name;
-    const description = getDescription(enumValueAST);
-    const enumValueConfig = { value };
-    if ('deprecationReason' in config) enumValueConfig.deprecationReason = config.deprecationReason;
-    if (description) enumValueConfig.description = description;
-    return { ...map, [name]: enumValueConfig };
-  }, {});
-
-export default function buildEnum(enumAST, { values } = {}) {
-  const enumTypeConfig = {
-    name: enumAST.name.value,
-    values: buildEnumValueConfigMap(enumAST, values),
+type BuildEnumValueConfigMapConfigMap = {
+  [valueName: string]: {
+    value?: any;
   };
-  const description = getDescription(enumAST);
-  if (description) enumTypeConfig.description = description;
-  return new GraphQLEnumType(enumTypeConfig);
+};
+
+export function buildEnumValueConfigMap(
+  node: EnumTypeDefinitionNode,
+  configMap?: BuildEnumValueConfigMapConfigMap = {},
+) {
+  return node.values.reduce((map, valueNode) => ({
+    ...map,
+    [valueNode.name.value]: {
+      ...configMap[valueNode.name.value],
+      deprecationReason: getDeprecationReason(valueNode.directives),
+      description: getDescription(valueNode),
+    },
+  }), {});
+}
+
+type BuildEnumConfig = {
+  values?: BuildEnumValueConfigMapConfigMap;
+};
+
+export default function buildEnum(node: EnumTypeDefinitionNode, config?: BuildEnumConfig = {}) {
+  const { values, ...rest } = config;
+  return new GraphQLEnumType({
+    ...rest,
+    name: node.name.value,
+    values: buildEnumValueConfigMap(node, values),
+    description: getDescription(node),
+  });
 }

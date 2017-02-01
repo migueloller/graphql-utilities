@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 import { GraphQLInputObjectType, GraphQLInt } from 'graphql/type';
 import { parse } from 'graphql/language';
 import { expectTypesEqual } from './comparators';
@@ -12,7 +10,7 @@ const generateInputObjectAST = ({
 } = {}) => parse(`
   # ${description === undefined ? '' : description}
   input ${name} {
-    ${Object.entries(fields).map((entry) => entry.join(': ')).join('\n')}
+    ${Object.entries(fields).map(entry => entry.join(': ')).join('\n')}
   }
 `).definitions[0];
 
