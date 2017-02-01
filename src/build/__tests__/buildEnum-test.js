@@ -2,7 +2,7 @@ import { GraphQLEnumType } from 'graphql/type';
 import { parse } from 'graphql/language';
 import buildEnum, { buildEnumValueConfigMap } from '../buildEnum';
 
-const generateEnumAST = ({ description, name = 'Enum', values = ['VALUE'] } = {}) => parse(`
+const generateEnumNode = ({ description, name = 'Enum', values = ['VALUE'] } = {}) => parse(`
   # ${description === undefined ? '' : description}
   enum ${name} {
     ${values.join('\n')}
@@ -10,33 +10,34 @@ const generateEnumAST = ({ description, name = 'Enum', values = ['VALUE'] } = {}
 `).definitions[0];
 const generateEnumValueConfigMap = ({
   name = 'VALUE',
-  value = 'VALUE',
-  description,
+  value,
   deprecationReason,
-} = {}) => ({ [name]: { value, description, deprecationReason } });
+  description,
+} = {}) => (name ? ({ [name]: { value, deprecationReason, description } }) : {});
 
 describe('buildEnumValueConfigMap()', () => {
-  it('should work with minimal AST', () => {
-    expect(buildEnumValueConfigMap(generateEnumAST())).toEqual(generateEnumValueConfigMap());
+  it('builds with minimal AST', () => {
+    expect(buildEnumValueConfigMap(generateEnumNode())).toEqual(generateEnumValueConfigMap());
   });
 
-  it('should work with description in AST', () => {
+  it('builds with description in AST', () => {
     const description = 'Another description.';
-    expect(buildEnumValueConfigMap(generateEnumAST({
+    expect(buildEnumValueConfigMap(generateEnumNode({
       values: [`# ${description}\nVALUE`],
     }))).toEqual(generateEnumValueConfigMap({ description }));
   });
 
-  it('should work with `value` in config map', () => {
-    const value = 'value';
-    expect(buildEnumValueConfigMap(generateEnumAST(), { VALUE: { value } }))
-      .toEqual(generateEnumValueConfigMap({ value }));
+  it('builds with deprecation directive in AST', () => {
+    const deprecationReason = 'A reason.';
+    expect(buildEnumValueConfigMap(generateEnumNode({
+      values: [`VALUE @deprecated(reason: "${deprecationReason}")`],
+    }))).toEqual(generateEnumValueConfigMap({ deprecationReason }));
   });
 
-  it('should work with `deprecationReason` in config map', () => {
-    const deprecationReason = 'A reason.';
-    expect(buildEnumValueConfigMap(generateEnumAST(), { VALUE: { deprecationReason } }))
-      .toEqual(generateEnumValueConfigMap({ deprecationReason }));
+  it('builds with `value` in config map', () => {
+    const value = 'value';
+    expect(buildEnumValueConfigMap(generateEnumNode(), { VALUE: { value } }))
+      .toEqual(generateEnumValueConfigMap({ value }));
   });
 });
 
@@ -47,17 +48,17 @@ describe('buildEnum()', () => {
     description,
   } = {}) => new GraphQLEnumType({ name, values, description });
 
-  it('should work with minimal AST', () => {
-    expect(buildEnum(generateEnumAST())).toEqual(generateEnumType());
+  it('builds with minimal AST', () => {
+    expect(buildEnum(generateEnumNode())).toEqual(generateEnumType());
   });
 
-  it('should work with description in AST', () => {
+  it('builds with description in AST', () => {
     const config = { description: 'A description.' };
-    expect(buildEnum(generateEnumAST(config))).toEqual(generateEnumType(config));
+    expect(buildEnum(generateEnumNode(config))).toEqual(generateEnumType(config));
   });
 
-  it('should work with `values` in config', () => {
+  it('builds with `values` in config', () => {
     const config = { values: { VALUE: { value: 'value' } } };
-    expect(buildEnum(generateEnumAST(), config)).toEqual(generateEnumType(config));
+    expect(buildEnum(generateEnumNode(), config)).toEqual(generateEnumType(config));
   });
 });
